@@ -1,4 +1,4 @@
-import { CostTrackingServiceImpl, CostTrackingConfig } from '../services/CostTrackingServiceImpl';
+import { CostTrackingServiceImpl, CostTrackingServiceConfig } from '../services/CostTrackingServiceImpl';
 import { CostTrackingService } from '../services/CostTrackingService';
 import { UsageMetrics, TTSServiceType } from '../types/common';
 import { CostMetricsImpl } from '../models/CostMetrics';
@@ -9,7 +9,7 @@ async function demonstrateCostTracking() {
   console.log('🔍 Cost Tracking Service Example\n');
 
   // Configure the cost tracking service
-  const config: CostTrackingConfig = {
+  const config: CostTrackingServiceConfig = {
     googleTTSPricePerCharacter: 0.000016, // $16 per 1M characters (Google Cloud TTS pricing)
     localComputeCostPerSecond: 0.001, // $0.001 per second (estimated local compute cost)
     googleTTSMonthlyQuota: 4000000, // 4M characters free tier

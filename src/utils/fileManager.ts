@@ -88,9 +88,14 @@ export class FileManager {
 
   async deleteFile(filepath: string): Promise<void> {
     try {
+      // Check if file exists before attempting to delete
+      await fs.access(filepath);
       await fs.unlink(filepath);
-    } catch (error) {
-      console.warn(`Failed to delete file ${filepath}:`, error);
+    } catch (error: any) {
+      // Only warn if it's not a "file not found" error
+      if (error.code !== 'ENOENT') {
+        console.warn(`Failed to delete file ${filepath}:`, error);
+      }
     }
   }
 }

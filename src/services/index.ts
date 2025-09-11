@@ -17,3 +17,4 @@ export * from './QualityAssuranceEngine';
 export * from './QualityAssuranceEngineImpl';
 export * from './ProcessingPipeline';
 export * from './ProcessingPipelineImpl';
+export * from './ConfigurationManager';

@@ -108,3 +108,18 @@ __pycache__/
 audio-temp/
 video-temp/
 processing-temp/
+
+# Compiled JavaScript files in src (should only be in dist/)
+src/**/*.js
+src/**/*.js.map
+
+# Configuration exports
+current-config.json
+.env.example
+
+# Cost tracking data
+cost-tracking-demo/
+
+# Model cache
+models/
+cache/

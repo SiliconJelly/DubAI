@@ -9,7 +9,7 @@ export interface CoquiTTSService {
   unloadModel(): Promise<void>;
 }
 
-export interface CoquiTTSConfig {
+export interface CoquiTTSServiceConfig {
   pythonPath: string;
   modelCachePath: string;
   maxConcurrentRequests: number;

@@ -3,7 +3,7 @@ import { CostMetrics, CostMetricsImpl } from '../models/CostMetrics';
 import { UsageMetrics, TTSServiceType, QuotaStatus } from '../types/common';
 import { v4 as uuidv4 } from 'uuid';
 
-export interface CostTrackingConfig {
+export interface CostTrackingServiceConfig {
   // Google Cloud TTS pricing (per character)
   googleTTSPricePerCharacter: number;
   
@@ -32,7 +32,7 @@ export interface CostAlert {
 }
 
 export class CostTrackingServiceImpl implements CostTrackingService {
-  private config: CostTrackingConfig;
+  private config: CostTrackingServiceConfig;
   private jobCosts: Map<string, CostMetricsImpl> = new Map();
   private totalUsage: Map<TTSServiceType, UsageMetrics> = new Map();
   private alerts: CostAlert[] = [];
@@ -41,7 +41,7 @@ export class CostTrackingServiceImpl implements CostTrackingService {
   private currentPeriodStart: Date;
   private googleTTSUsageThisPeriod: number = 0;
 
-  constructor(config: CostTrackingConfig) {
+  constructor(config: CostTrackingServiceConfig) {
     this.config = config;
     this.currentPeriodStart = this.getMonthStart(new Date());
     

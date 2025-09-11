@@ -3,3 +3,4 @@ export * from './common';
 export * from './errors';
 export * from './api';
 export * from './express';
+export * from './configuration';

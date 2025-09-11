@@ -1,5 +1,5 @@
 import { CoquiTTSServiceImpl } from '../services/CoquiTTSServiceImpl';
-import { CoquiTTSConfig } from '../services/CoquiTTSService';
+import { CoquiTTSServiceConfig } from '../services/CoquiTTSService';
 import { LocalVoiceConfig } from '../models';
 import { TTSError } from '../types/errors';
 import { PythonBridge } from '../utils/pythonBridge';
@@ -25,7 +25,7 @@ jest.mock('fs', () => ({
 describe('CoquiTTSServiceImpl', () => {
   let service: CoquiTTSServiceImpl;
   let mockPythonBridge: jest.Mocked<PythonBridge>;
-  let config: CoquiTTSConfig;
+  let config: CoquiTTSServiceConfig;
 
   beforeEach(() => {
     config = {

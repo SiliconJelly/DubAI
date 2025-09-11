@@ -25,7 +25,7 @@ describe('ProcessingPipelineImpl Integration Tests', () => {
   afterAll(async () => {
     // Cleanup temporary directory
     try {
-      await fs.rmdir(tempDir, { recursive: true });
+      await fs.rm(tempDir, { recursive: true });
     } catch (error) {
       // Ignore cleanup errors
     }

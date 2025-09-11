@@ -1,5 +1,5 @@
 import { CoquiTTSServiceImpl } from '../services/CoquiTTSServiceImpl';
-import { CoquiTTSConfig } from '../services/CoquiTTSService';
+import { CoquiTTSServiceConfig } from '../services/CoquiTTSService';
 import { LocalVoiceConfig } from '../models';
 
 /**
@@ -9,7 +9,7 @@ import { LocalVoiceConfig } from '../models';
  */
 describe('CoquiTTS Integration Tests', () => {
   let service: CoquiTTSServiceImpl;
-  let config: CoquiTTSConfig;
+  let config: CoquiTTSServiceConfig;
 
   beforeAll(() => {
     // Force mock bridge for integration tests to avoid Python dependency

@@ -1,5 +1,5 @@
 import { CoquiTTSServiceImpl } from '../services/CoquiTTSServiceImpl';
-import { CoquiTTSConfig } from '../services/CoquiTTSService';
+import { CoquiTTSServiceConfig } from '../services/CoquiTTSService';
 import { LocalVoiceConfig } from '../models';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -14,7 +14,7 @@ async function runCoquiTTSExample() {
   console.log('=' .repeat(60));
 
   // Configuration for Coqui TTS
-  const config: CoquiTTSConfig = {
+  const config: CoquiTTSServiceConfig = {
     pythonPath: process.platform === 'win32' ? 'py' : 'python3', // Use 'py' on Windows, 'python3' on Unix
     modelCachePath: './temp/coqui_models',
     maxConcurrentRequests: 2,
@@ -160,7 +160,7 @@ async function benchmarkCoquiTTS() {
   console.log('\n🏃‍♂️ Performance Benchmark');
   console.log('=' .repeat(40));
 
-  const config: CoquiTTSConfig = {
+  const config: CoquiTTSServiceConfig = {
     pythonPath: 'python3',
     modelCachePath: './temp/coqui_models',
     maxConcurrentRequests: 1,

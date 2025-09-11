@@ -1,4 +1,4 @@
-import { CostTrackingServiceImpl, CostTrackingConfig, CostAlert } from '../services/CostTrackingServiceImpl';
+import { CostTrackingServiceImpl, CostTrackingServiceConfig, CostAlert } from '../services/CostTrackingServiceImpl';
 import { CostTrackingService, CostReport } from '../services/CostTrackingService';
 import { CostMetrics, CostMetricsImpl } from '../models/CostMetrics';
 import { UsageMetrics, TTSServiceType, QuotaStatus } from '../types/common';
@@ -7,7 +7,7 @@ import * as os from 'os';
 
 describe('CostTrackingServiceImpl', () => {
   let service: CostTrackingService;
-  let config: CostTrackingConfig;
+  let config: CostTrackingServiceConfig;
 
   beforeEach(() => {
     config = {

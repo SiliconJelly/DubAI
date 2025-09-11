@@ -4,3 +4,4 @@ export * from './fileManager';
 export * from './errorHandler';
 export * from './validation';
 export * from './constants';
+export * from './configurationUtils';

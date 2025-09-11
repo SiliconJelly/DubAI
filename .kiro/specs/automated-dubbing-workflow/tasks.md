@@ -213,7 +213,10 @@
 
   - _Requirements: 1.1, 2.1, 3.1, 4.1, 5.1, 7.4_
 
-- [ ] 14. Create configuration management system
+- [-] 14. Create configuration management system
+
+
+
 
   - Create ConfigurationManager class for managing service settings
 

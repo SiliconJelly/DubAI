@@ -2,14 +2,14 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { LocalVoiceConfig } from '../models';
 import { ModelInfo, UsageMetrics } from '../types/common';
-import { CoquiTTSService, CoquiTTSConfig, CoquiModelConfig } from './CoquiTTSService';
+import { CoquiTTSService, CoquiTTSServiceConfig, CoquiModelConfig } from './CoquiTTSService';
 import { PythonBridge, PythonBridgeConfig } from '../utils/pythonBridge';
 import { TTSError } from '../types/errors';
 import { DefaultErrorHandler } from '../utils/errorHandler';
 
 export class CoquiTTSServiceImpl implements CoquiTTSService {
   private pythonBridge: PythonBridge;
-  private config: CoquiTTSConfig;
+  private config: CoquiTTSServiceConfig;
   private currentModel: CoquiModelConfig | null = null;
   private modelCache: Map<string, ModelInfo> = new Map();
   private usageMetrics: UsageMetrics = {
@@ -21,7 +21,7 @@ export class CoquiTTSServiceImpl implements CoquiTTSService {
   private errorHandler: DefaultErrorHandler;
   private isInitialized = false;
 
-  constructor(config: CoquiTTSConfig) {
+  constructor(config: CoquiTTSServiceConfig) {
     this.config = config;
     this.errorHandler = new DefaultErrorHandler();
     
