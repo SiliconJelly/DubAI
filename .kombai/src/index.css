@@ -1,0 +1,224 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Core backgrounds */
+    --background: 223 20% 10%;
+    --foreground: 0 0% 98%;
+
+    /* Card styles */
+    --card: 223 20% 12%;
+    --card-foreground: 0 0% 98%;
+
+    /* Popover styles */
+    --popover: 223 20% 12%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary brand colors - vibrant lime green */
+    --primary: 84 85% 67%;
+    --primary-foreground: 223 20% 10%;
+    --primary-glow: 84 90% 75%;
+
+    /* Secondary - bright cyan */
+    --secondary: 190 92% 58%;
+    --secondary-foreground: 223 20% 10%;
+    --secondary-glow: 190 95% 65%;
+
+    /* Muted colors */
+    --muted: 223 15% 20%;
+    --muted-foreground: 223 10% 70%;
+
+    /* Accent colors - vivid purple/magenta */
+    --accent: 280 85% 65%;
+    --accent-foreground: 0 0% 98%;
+    --accent-glow: 280 90% 70%;
+
+    /* Destructive/error */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders and inputs */
+    --border: 223 15% 25%;
+    --input: 223 15% 25%;
+    --ring: 84 85% 67%;
+
+    /* Radius */
+    --radius: 0.75rem;
+
+    /* Custom design tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(84 85% 67%), hsl(190 92% 58%));
+    --gradient-secondary: linear-gradient(135deg, hsl(190 92% 58%), hsl(280 85% 65%));
+    --gradient-dark: linear-gradient(180deg, hsl(223 20% 10%), hsl(223 25% 15%));
+    --gradient-glow: linear-gradient(135deg, hsl(84 85% 67% / 0.3), hsl(190 92% 58% / 0.3));
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(223 20% 5% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(223 20% 5% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(223 20% 5% / 0.2);
+    --shadow-xl: 0 20px 25px -5px hsl(223 20% 5% / 0.3);
+    --shadow-glow: 0 0 40px hsl(84 85% 67% / 0.3);
+    
+    /* Animations */
+    --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Typography */
+    --font-heading: "Outfit", system-ui, -apple-system, sans-serif;
+    --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+    /* Sidebar - not used but keeping for compatibility */
+    --sidebar-background: 223 20% 12%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 84 85% 67%;
+    --sidebar-primary-foreground: 223 20% 10%;
+    --sidebar-accent: 280 85% 65%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 223 15% 25%;
+    --sidebar-ring: 84 85% 67%;
+  }
+
+  .light {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    --primary: 84 85% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 84 85% 67%;
+
+    --secondary: 190 92% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary-glow: 190 92% 58%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 280 85% 55%;
+    --accent-foreground: 0 0% 100%;
+    --accent-glow: 280 85% 65%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 84 85% 55%;
+
+    --gradient-primary: linear-gradient(135deg, hsl(84 85% 55%), hsl(190 92% 48%));
+    --gradient-secondary: linear-gradient(135deg, hsl(190 92% 48%), hsl(280 85% 55%));
+    --gradient-light: linear-gradient(180deg, hsl(0 0% 100%), hsl(240 4.8% 95.9%));
+    --gradient-glow: linear-gradient(135deg, hsl(84 85% 55% / 0.2), hsl(190 92% 48% / 0.2));
+    
+    --shadow-sm: 0 1px 2px 0 hsl(240 10% 3.9% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(240 10% 3.9% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(240 10% 3.9% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(240 10% 3.9% / 0.1);
+    --shadow-glow: 0 0 40px hsl(84 85% 55% / 0.15);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 84 85% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 280 85% 55%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 5.9% 90%;
+    --sidebar-ring: 84 85% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Import custom fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Custom animations */
+@layer utilities {
+  @keyframes gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+  
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes slide-up {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient-shift 3s ease infinite;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply backdrop-blur-md bg-card/30 border border-border/50;
+  }
+
+  /* Glow effect */
+  .glow-primary {
+    box-shadow: 0 0 30px hsl(var(--primary-glow) / 0.3);
+  }
+
+  .glow-secondary {
+    box-shadow: 0 0 30px hsl(var(--secondary-glow) / 0.3);
+  }
+
+  /* Text gradients */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
+  }
+
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

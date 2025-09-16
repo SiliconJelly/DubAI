@@ -1,0 +1,449 @@
+import { SupabaseClient } from '@supabase/supabase-js';
+// import { FileStorageService, FileMetadata } from './FileStorageService'; // Temporarily disabled
+import { FileManager } from '../utils/fileManager';
+import * as path from 'path';
+import * as fs from 'fs/promises';
+
+export interface ProcessingStep {
+  name: string;
+  status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
+  startTime?: Date;
+  endTime?: Date;
+  duration?: number;
+  error?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface FileProcessingJob {
+  id: string;
+  userId: string;
+  inputFileId: string;
+  outputFiles: FileMetadata[];
+  steps: ProcessingStep[];
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  progress: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface VideoAnalysisResult {
+  duration: number;
+  resolution: { width: number; height: number };
+  frameRate: number;
+  bitrate: number;
+  hasAudio: boolean;
+  audioChannels?: number;
+  audioSampleRate?: number;
+  estimatedProcessingTime: number;
+}
+
+export interface SRTAnalysisResult {
+  subtitleCount: number;
+  totalDuration: number;
+  languages: string[];
+  encoding: string;
+  isValid: boolean;
+  errors: string[];
+}
+
+export class FileProcessingPipeline {
+  constructor(
+    private supabase: SupabaseClient,
+    private fileStorageService: FileStorageService,
+    private fileManager: FileManager
+  ) {}
+
+  /**
+   * Analyzes video file to extract metadata and validate for processing
+   */
+  async analyzeVideoFile(fileMetadata: FileMetadata): Promise<VideoAnalysisResult> {
+    if (fileMetadata.fileType !== 'video') {
+      throw new Error('File is not a video file');
+    }
+
+    try {
+      // Download file temporarily for analysis
+      const tempPath = await this.downloadFileForProcessing(fileMetadata);
+      
+      // Use FFmpeg to analyze video
+      const analysis = await this.runFFmpegAnalysis(tempPath);
+      
+      // Clean up temporary file
+      await this.fileManager.deleteFile(tempPath);
+      
+      return analysis;
+    } catch (error) {
+      throw new Error(`Video analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Analyzes SRT file to validate format and extract metadata
+   */
+  async analyzeSRTFile(fileMetadata: FileMetadata): Promise<SRTAnalysisResult> {
+    if (fileMetadata.fileType !== 'srt') {
+      throw new Error('File is not an SRT file');
+    }
+
+    try {
+      // Download file content
+      const { data: fileData, error } = await this.supabase.storage
+        .from('user-files')
+        .download(fileMetadata.storagePath);
+
+      if (error) {
+        throw new Error(`Failed to download SRT file: ${error.message}`);
+      }
+
+      const content = await fileData.text();
+      return this.parseSRTContent(content);
+    } catch (error) {
+      throw new Error(`SRT analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Extracts audio from video file for processing
+   */
+  async extractAudioFromVideo(
+    videoFileMetadata: FileMetadata,
+    outputOptions: {
+      format?: 'wav' | 'mp3';
+      sampleRate?: number;
+      channels?: number;
+    } = {}
+  ): Promise<FileMetadata> {
+    if (videoFileMetadata.fileType !== 'video') {
+      throw new Error('Input file is not a video');
+    }
+
+    const { format = 'wav', sampleRate = 44100, channels = 2 } = outputOptions;
+
+    try {
+      // Download video file temporarily
+      const tempVideoPath = await this.downloadFileForProcessing(videoFileMetadata);
+      
+      // Create temporary output path for audio
+      const audioExtension = format;
+      const tempAudioPath = await this.fileManager.createTempFile(audioExtension);
+      
+      // Extract audio using FFmpeg
+      await this.runFFmpegAudioExtraction(tempVideoPath, tempAudioPath, {
+        format,
+        sampleRate,
+        channels
+      });
+
+      // Read extracted audio file
+      const audioBuffer = await fs.readFile(tempAudioPath);
+      const audioStats = await fs.stat(tempAudioPath);
+
+      // Create multer-like file object for upload
+      const audioFile: Express.Multer.File = {
+        fieldname: 'audio',
+        originalname: `${path.parse(videoFileMetadata.filename).name}.${audioExtension}`,
+        encoding: '7bit',
+        mimetype: `audio/${format}`,
+        size: audioStats.size,
+        buffer: audioBuffer,
+        destination: '',
+        filename: '',
+        path: '',
+        stream: null as any
+      };
+
+      // Upload extracted audio
+      const audioMetadata = await this.fileStorageService.uploadFile(
+        audioFile,
+        videoFileMetadata.userId,
+        {
+          category: 'processing',
+          isTemporary: true,
+          expiresInHours: 24,
+          metadata: {
+            extractedFrom: videoFileMetadata.id,
+            extractionSettings: { format, sampleRate, channels },
+            extractionTimestamp: new Date().toISOString()
+          }
+        }
+      );
+
+      // Clean up temporary files
+      await this.fileManager.deleteFile(tempVideoPath);
+      await this.fileManager.deleteFile(tempAudioPath);
+
+      return audioMetadata;
+    } catch (error) {
+      throw new Error(`Audio extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Validates file compatibility for dubbing workflow
+   */
+  async validateFilesForDubbing(
+    videoFile: FileMetadata,
+    srtFile?: FileMetadata
+  ): Promise<{
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
+    recommendations: string[];
+  }> {
+    const errors: string[] = [];
+    const warnings: string[] = [];
+    const recommendations: string[] = [];
+
+    try {
+      // Validate video file
+      if (videoFile.fileType !== 'video') {
+        errors.push('Primary file must be a video file');
+      } else {
+        const videoAnalysis = await this.analyzeVideoFile(videoFile);
+        
+        // Check video requirements
+        if (videoAnalysis.duration < 1) {
+          errors.push('Video duration is too short (minimum 1 second)');
+        }
+        
+        if (videoAnalysis.duration > 3600) { // 1 hour
+          warnings.push('Video is longer than 1 hour, processing may take significant time');
+        }
+        
+        if (!videoAnalysis.hasAudio) {
+          warnings.push('Video has no audio track - original audio will not be preserved');
+        }
+        
+        if (videoAnalysis.resolution.width < 480) {
+          warnings.push('Video resolution is quite low, consider using higher quality source');
+        }
+        
+        if (videoAnalysis.bitrate < 500000) { // 500kbps
+          warnings.push('Video bitrate is low, output quality may be affected');
+        }
+      }
+
+      // Validate SRT file if provided
+      if (srtFile) {
+        if (srtFile.fileType !== 'srt') {
+          errors.push('Subtitle file must be in SRT format');
+        } else {
+          const srtAnalysis = await this.analyzeSRTFile(srtFile);
+          
+          if (!srtAnalysis.isValid) {
+            errors.push(`Invalid SRT file: ${srtAnalysis.errors.join(', ')}`);
+          }
+          
+          if (srtAnalysis.subtitleCount === 0) {
+            errors.push('SRT file contains no subtitles');
+          }
+          
+          if (srtAnalysis.subtitleCount > 1000) {
+            warnings.push('SRT file has many subtitles, processing may take longer');
+          }
+        }
+      } else {
+        recommendations.push('Consider providing SRT subtitles for better translation accuracy');
+      }
+
+      // Cross-validation between video and SRT
+      if (videoFile.fileType === 'video' && srtFile?.fileType === 'srt') {
+        try {
+          const videoAnalysis = await this.analyzeVideoFile(videoFile);
+          const srtAnalysis = await this.analyzeSRTFile(srtFile);
+          
+          const durationDiff = Math.abs(videoAnalysis.duration - srtAnalysis.totalDuration);
+          if (durationDiff > 30) { // 30 seconds tolerance
+            warnings.push('Video and subtitle durations differ significantly - timing may be off');
+          }
+        } catch (error) {
+          warnings.push('Could not validate video-subtitle timing compatibility');
+        }
+      }
+
+      return {
+        isValid: errors.length === 0,
+        errors,
+        warnings,
+        recommendations
+      };
+    } catch (error) {
+      return {
+        isValid: false,
+        errors: [`Validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`],
+        warnings,
+        recommendations
+      };
+    }
+  }
+
+  /**
+   * Creates organized folder structure for processing job
+   */
+  async createJobWorkspace(jobId: string, userId: string): Promise<{
+    inputPath: string;
+    processingPath: string;
+    outputPath: string;
+  }> {
+    const basePath = `jobs/${userId}/${jobId}`;
+    
+    return {
+      inputPath: `${basePath}/input`,
+      processingPath: `${basePath}/processing`,
+      outputPath: `${basePath}/output`
+    };
+  }
+
+  /**
+   * Downloads file from Supabase Storage for local processing
+   */
+  private async downloadFileForProcessing(fileMetadata: FileMetadata): Promise<string> {
+    const { data: fileData, error } = await this.supabase.storage
+      .from('user-files')
+      .download(fileMetadata.storagePath);
+
+    if (error) {
+      throw new Error(`Failed to download file: ${error.message}`);
+    }
+
+    // Create temporary file
+    const extension = path.extname(fileMetadata.filename).slice(1);
+    const tempPath = await this.fileManager.createTempFile(extension);
+    
+    // Write file data to temporary location
+    const arrayBuffer = await fileData.arrayBuffer();
+    await fs.writeFile(tempPath, Buffer.from(arrayBuffer));
+    
+    return tempPath;
+  }
+
+  /**
+   * Runs FFmpeg analysis on video file
+   */
+  private async runFFmpegAnalysis(videoPath: string): Promise<VideoAnalysisResult> {
+    // This is a placeholder - in a real implementation, you would use FFmpeg
+    // For now, return mock data based on file size
+    const stats = await fs.stat(videoPath);
+    const fileSizeMB = stats.size / (1024 * 1024);
+    
+    return {
+      duration: Math.max(60, fileSizeMB * 2), // Rough estimate
+      resolution: { width: 1920, height: 1080 }, // Default HD
+      frameRate: 30,
+      bitrate: 2000000, // 2Mbps
+      hasAudio: true,
+      audioChannels: 2,
+      audioSampleRate: 44100,
+      estimatedProcessingTime: Math.ceil(fileSizeMB / 10) * 60 // 1 min per 10MB
+    };
+  }
+
+  /**
+   * Runs FFmpeg audio extraction
+   */
+  private async runFFmpegAudioExtraction(
+    videoPath: string,
+    audioPath: string,
+    options: {
+      format: string;
+      sampleRate: number;
+      channels: number;
+    }
+  ): Promise<void> {
+    // This is a placeholder - in a real implementation, you would use FFmpeg
+    // For now, create a dummy audio file
+    const dummyAudioData = Buffer.alloc(1024 * 1024); // 1MB dummy file
+    await fs.writeFile(audioPath, dummyAudioData);
+  }
+
+  /**
+   * Parses SRT content and extracts metadata
+   */
+  private parseSRTContent(content: string): SRTAnalysisResult {
+    const lines = content.trim().split('\n');
+    const errors: string[] = [];
+    let subtitleCount = 0;
+    let totalDuration = 0;
+    let maxTimestamp = 0;
+
+    const timePattern = /^(\d{2}):(\d{2}):(\d{2}),(\d{3}) --> (\d{2}):(\d{2}):(\d{2}),(\d{3})$/;
+    
+    let i = 0;
+    while (i < lines.length) {
+      // Skip empty lines
+      if (lines[i].trim() === '') {
+        i++;
+        continue;
+      }
+
+      // Check sequence number
+      const sequenceMatch = /^\d+$/.test(lines[i].trim());
+      if (!sequenceMatch) {
+        errors.push(`Invalid sequence number at line ${i + 1}: ${lines[i]}`);
+        i++;
+        continue;
+      }
+      i++;
+
+      // Check timestamp
+      if (i >= lines.length) {
+        errors.push(`Missing timestamp for subtitle ${subtitleCount + 1}`);
+        break;
+      }
+
+      const timeMatch = timePattern.exec(lines[i].trim());
+      if (!timeMatch) {
+        errors.push(`Invalid timestamp format at line ${i + 1}: ${lines[i]}`);
+        i++;
+        continue;
+      }
+
+      // Calculate duration
+      const startTime = this.parseTimestamp(timeMatch.slice(1, 5));
+      const endTime = this.parseTimestamp(timeMatch.slice(5, 9));
+      
+      if (endTime > maxTimestamp) {
+        maxTimestamp = endTime;
+      }
+      
+      totalDuration += (endTime - startTime);
+      subtitleCount++;
+      i++;
+
+      // Skip subtitle text
+      while (i < lines.length && lines[i].trim() !== '') {
+        i++;
+      }
+    }
+
+    // Detect encoding (simplified)
+    let encoding = 'UTF-8';
+    try {
+      // Try to detect non-UTF8 characters
+      const buffer = Buffer.from(content, 'utf8');
+      if (buffer.toString('utf8') !== content) {
+        encoding = 'Unknown';
+      }
+    } catch {
+      encoding = 'Unknown';
+    }
+
+    return {
+      subtitleCount,
+      totalDuration: maxTimestamp / 1000, // Convert to seconds
+      languages: ['unknown'], // Would need language detection
+      encoding,
+      isValid: errors.length === 0,
+      errors
+    };
+  }
+
+  /**
+   * Parses timestamp components into milliseconds
+   */
+  private parseTimestamp(components: string[]): number {
+    const [hours, minutes, seconds, milliseconds] = components.map(Number);
+    return (hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
+  }
+}
+

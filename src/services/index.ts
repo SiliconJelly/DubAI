@@ -18,3 +18,7 @@ export * from './QualityAssuranceEngineImpl';
 export * from './ProcessingPipeline';
 export * from './ProcessingPipelineImpl';
 export * from './ConfigurationManager';
+export * from './MovieAnalysisService';
+export * from './MovieAnalysisServiceImpl';
+export * from './TranslationEngine';
+export * from './TranslationEngineImpl';

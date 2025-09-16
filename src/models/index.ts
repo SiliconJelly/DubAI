@@ -9,3 +9,4 @@ export * from './ProcessingJob';
 export * from './CostMetrics';
 export * from './QualityMetrics';
 export * from './VoiceConfig';
+export * from './MovieAnalysis';
