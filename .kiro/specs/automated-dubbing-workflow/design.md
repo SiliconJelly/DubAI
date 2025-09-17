@@ -1,8 +1,8 @@
-# DubAI - Cross-Platform Movie Context Collection & Dubbing SaaS
+# DubAI - AI-Powered Movie Localization Platform with Agent-Driven Development
 
 ## Overview
 
-DubAI is a revolutionary micro-SaaS platform that serves as a comprehensive movie ecosystem, combining intelligent movie cataloging, subtitle management, and high-quality dubbing services. The platform operates as a movie-specific content hub with futuristic design, enabling users to discover, translate, and enjoy movies in their preferred language while building a personalized movie experience.
+DubAI is a revolutionary AI-powered movie localization platform that transforms video content into high-quality dubbed versions using advanced AI agent systems. The platform operates as an intelligent pipeline where users upload video files, and the system automatically handles subtitle matching, translation, and human-like voiceover generation. The development process leverages Kiro's agent steering, hooks, and MCP servers to create an automated development workflow where specialized agents handle different aspects of the platform, from backend API development to AI model integration and deployment automation.
 
 ## Business Model & Quarterly Roadmap
 
@@ -25,25 +25,43 @@ DubAI is a revolutionary micro-SaaS platform that serves as a comprehensive movi
 
 ## Architecture
 
-### Q1 MVP Architecture - Two-Function Core
+### Q1 MVP Architecture - Real-Time Streaming with AI Agent-Driven Dubbing
 
 ```mermaid
 graph TB
-    A[Movie Search & Catalog] --> B[SRT File Input]
-    B --> C[Function 1: Translation Engine]
-    C --> D[Whisper Local Processing]
-    D --> E[Movie Analysis AI]
-    E --> F[Bangla SRT + Context]
-    F --> G[Function 2: Voice Generation]
-    G --> H[A/B TTS Router]
-    H --> I[Google Cloud TTS]
-    H --> J[Coqui TTS Local]
-    I --> K[Audio Assembly]
-    J --> K
-    K --> L[Final Dub Output]
+    A[Dailymotion URL Input] --> B[Dailymotion API Agent]
+    A1[Direct Video Upload] --> C[Video Analysis Agent]
+    B --> B1[Video Download & Metadata Extraction]
+    B --> B2[Embedded Video Player]
+    B1 --> C
+    C --> D[OpenSubtitles.org Matcher]
+    D --> E[Subtitle Validation Agent]
+    E --> F[Function 1: Whisper Translation Agent]
+    F --> G[Character Analysis AI]
+    G --> H[Function 2: Master Voice Agent]
+    H --> I[Reasoning & Task Decomposition]
+    I --> J[Subordinate Voice Agent 1]
+    I --> K[Subordinate Voice Agent 2]
+    I --> L[Subordinate Voice Agent N]
+    J --> M[Real-Time Audio Streaming]
+    K --> M
+    L --> M
+    M --> N[Audio Synchronization Engine]
+    N --> O[Live Dubbing Overlay]
+    O --> B2
+    B2 --> P[User Experience Layer]
     
-    M[Cost Tracker] --> N[Performance Analytics]
-    O[User Management] --> P[Movie Preferences]
+    Q[Kiro Development Agents] --> R[Agent Steering Rules]
+    S[MCP Servers] --> T[N8N Automation]
+    U[Agent Hooks] --> V[CI/CD Pipeline]
+    
+    W[Dailymotion MCP Server] --> B
+    X[OpenSubtitles MCP Server] --> D
+    Y[TTS Services MCP Server] --> J
+    Y --> K
+    Y --> L
+    Z[Streaming MCP Server] --> M
+    Z --> N
 ```
 
 ### Q2 Full Platform Architecture
@@ -66,11 +84,11 @@ graph TB
 ### Core System Components
 
 **Q1 MVP Components:**
-1. **Movie Catalog Interface**: Search and browse movie database
-2. **Translation Pipeline**: Whisper-powered SRT translation with AI analysis
-3. **Dual-TTS Engine**: A/B testing between Google TTS and Coqui TTS
-4. **Audio Assembly Service**: FFmpeg-based audio synchronization
-5. **Cost Optimization Engine**: Real-time cost tracking and service selection
+1. **Video Processing Pipeline**: Automated video analysis and subtitle matching with OpenSubtitles.org
+2. **Whisper Translation Agent**: High-context translation with character analysis
+3. **AI Voice Agent System**: Master agent with reasoning and subordinate voice agents
+4. **Audio Compilation Engine**: Background sound preservation and quality enhancement
+5. **Agent Orchestration Layer**: Kiro-powered development and deployment automation
 
 **Q2 Platform Components:**
 6. **User Account System**: Cross-platform authentication and profiles
@@ -79,106 +97,478 @@ graph TB
 9. **Mobile App Interface**: Native iOS/Android experience
 10. **Subscription Management**: Payment processing and feature gating
 
-## Q1 MVP: Core Function Interfaces
+### Agent-Driven Development Architecture
 
-### Function 1: Translation Engine
+**Kiro Agent Specialization:**
+1. **Backend Development Agents**: Handle API development, database design, and service integration
+2. **Frontend Development Agents**: Create React components, UI/UX, and real-time interfaces
+3. **AI Integration Agents**: Manage Whisper model setup, TTS service integration, and voice processing
+4. **DevOps Agents**: Handle deployment, monitoring, and infrastructure management
+5. **Quality Assurance Agents**: Automated testing, performance optimization, and bug detection
+
+**Agent Steering Rules:**
+- **Backend Steering**: Focus on scalable API design, efficient database queries, and robust error handling
+- **Frontend Steering**: Prioritize responsive design, real-time updates, and intuitive user experience
+- **AI Steering**: Emphasize model accuracy, processing efficiency, and quality validation
+- **DevOps Steering**: Ensure reliable deployment, comprehensive monitoring, and automated recovery
+
+**Agent Hooks Configuration:**
+- **Code Change Hooks**: Trigger automated testing, linting, and documentation updates
+- **Deployment Hooks**: Handle server configuration, database migration, and service startup
+- **Monitoring Hooks**: Track performance metrics, error rates, and user engagement
+- **Maintenance Hooks**: Automated backups, security updates, and system optimization
+
+## Q1 MVP: Core Agent Interfaces
+
+### Dailymotion Integration Agent
 
 **Responsibilities:**
-- Accept English SRT files as primary input
-- Process through Whisper translation model locally
-- Generate movie analysis and character context
-- Output timestamped Bangla SRT with metadata
+- Handle Dailymotion API authentication and video access
+- Download videos with metadata extraction
+- Manage video quality selection and progressive download
+- Respect API rate limits and terms of service
 
 **Interface:**
 ```typescript
-interface TranslationEngine {
-  translateSRT(englishSRT: SRTFile, movieContext: MovieMetadata): Promise<TranslationResult>
-  analyzeMovieContext(srtContent: string): Promise<MovieAnalysis>
-  generateCharacterProfiles(dialogues: DialogueSegment[]): Promise<CharacterProfile[]>
-  validateTimestamps(srtFile: SRTFile): Promise<ValidationResult>
+interface DailymotionAgent {
+  validateVideoUrl(url: string): Promise<UrlValidation>
+  authenticateWithDailymotion(credentials: DailymotionCredentials): Promise<AuthToken>
+  getVideoMetadata(videoId: string): Promise<DailymotionVideoMetadata>
+  downloadVideo(videoId: string, quality: VideoQuality): Promise<VideoFile>
+  getAvailableQualities(videoId: string): Promise<VideoQuality[]>
+  checkVideoAccessibility(videoId: string): Promise<AccessibilityStatus>
+}
+
+interface DailymotionVideoMetadata {
+  id: string
+  title: string
+  description: string
+  duration: number
+  thumbnailUrl: string
+  uploadDate: Date
+  viewCount: number
+  availableQualities: VideoQuality[]
+  tags: string[]
+  category: string
+}
+
+interface VideoQuality {
+  resolution: string
+  bitrate: number
+  format: string
+  fileSize: number
+  downloadUrl: string
+}
+```
+
+### Video Processing & Subtitle Matching Agent
+
+**Responsibilities:**
+- Analyze video files from Dailymotion or direct upload
+- Search and match subtitles from OpenSubtitles.org
+- Validate subtitle format and timing accuracy
+- Prepare content for translation pipeline
+
+**Interface:**
+```typescript
+interface VideoProcessingAgent {
+  analyzeVideo(videoFile: VideoFile): Promise<VideoMetadata>
+  analyzeVideoFromDailymotion(dailymotionMetadata: DailymotionVideoMetadata): Promise<VideoMetadata>
+  searchSubtitles(videoMetadata: VideoMetadata): Promise<SubtitleMatch[]>
+  downloadSubtitle(subtitleId: string): Promise<SRTFile>
+  validateSubtitleSync(video: VideoFile, subtitle: SRTFile): Promise<SyncValidation>
+}
+
+interface VideoMetadata {
+  duration: number
+  resolution: string
+  fileHash: string
+  frameRate: number
+  audioTracks: AudioTrack[]
+  videoFingerprint: string
+  source: 'dailymotion' | 'upload'
+  originalMetadata?: DailymotionVideoMetadata
+}
+
+interface SubtitleMatch {
+  id: string
+  title: string
+  language: string
+  accuracy: number
+  downloadUrl: string
+  rating: number
+}
+```
+
+### Function 1: Whisper Translation Agent
+
+**Responsibilities:**
+- Process subtitle files through Whisper large-v3 model
+- Maintain high contextual understanding for accurate translation
+- Generate character profiles and voice instructions
+- Preserve timing precision and cultural nuance
+
+**Interface:**
+```typescript
+interface WhisperTranslationAgent {
+  translateWithContext(subtitle: SRTFile, targetLanguage: string): Promise<TranslationResult>
+  analyzeCharacterContext(dialogues: DialogueSegment[]): Promise<CharacterProfile[]>
+  preserveTimingAccuracy(originalSRT: SRTFile, translatedSRT: SRTFile): Promise<SRTFile>
+  generateVoiceInstructions(characters: CharacterProfile[]): Promise<VoiceInstruction[]>
 }
 
 interface TranslationResult {
-  banglaSRT: SRTFile
-  movieAnalysis: MovieAnalysis
+  translatedSRT: SRTFile
   characterProfiles: CharacterProfile[]
+  voiceInstructions: VoiceInstruction[]
+  culturalNotes: CulturalContext[]
   processingMetrics: ProcessingMetrics
 }
 ```
 
-**Implementation Details:**
-- Uses Whisper large-v3 model for maximum accuracy
-- Runs entirely locally to minimize API costs
-- Preserves original timestamps with millisecond precision
-- Generates rich movie context for enhanced user experience
-
-### Function 2: Voice Generation Engine
+### Function 2: AI Voice Agent System
 
 **Responsibilities:**
-- Convert Bangla SRT to high-quality voice audio
-- A/B test between Google Cloud TTS and Coqui TTS
-- Maintain perfect timestamp synchronization
-- Generate noise-free, professional dub files
+- Master agent performs reasoning and task decomposition
+- Subordinate agents handle character-specific voice generation
+- Coordinate quality validation and consistency checks
+- Integrate with background audio for seamless dubbing
 
 **Interface:**
 ```typescript
-interface VoiceGenerationEngine {
-  generateDubAudio(banglaSRT: SRTFile, voiceConfig: VoiceConfiguration): Promise<DubResult>
-  performABTest(srtSegment: SRTSegment): Promise<ABTestResult>
-  optimizeAudioQuality(audioBuffer: Buffer): Promise<Buffer>
-  synchronizeWithTimestamps(audio: AudioBuffer, timestamps: Timestamp[]): Promise<AudioBuffer>
+interface MasterVoiceAgent {
+  analyzeDialogueContext(translatedSRT: SRTFile, characters: CharacterProfile[]): Promise<TaskDecomposition>
+  coordinateSubordinateAgents(tasks: VoiceTask[]): Promise<VoiceResult[]>
+  validateQualityConsistency(voiceSegments: VoiceSegment[]): Promise<QualityValidation>
+  orchestrateAudioCompilation(segments: VoiceSegment[], backgroundAudio: AudioBuffer): Promise<FinalDub>
 }
 
-interface DubResult {
-  audioFile: AudioBuffer
-  qualityMetrics: QualityMetrics
-  costAnalysis: CostBreakdown
-  processingTime: number
-  selectedTTSService: TTSServiceType
-}
-```
-
-**Implementation Details:**
-- Intelligent A/B testing between Google TTS (WaveNet) and Coqui TTS
-- Real-time cost optimization and quota management
-- FFmpeg integration for audio assembly and synchronization
-- Zero audio degradation with professional output quality
-
-### Movie Catalog & Search Interface
-
-**Responsibilities:**
-- Provide comprehensive movie database search
-- Manage subtitle file collections
-- Enable movie discovery and browsing
-- Cache frequently accessed content
-
-**Interface:**
-```typescript
-interface MovieCatalogService {
-  searchMovies(query: string, filters: SearchFilters): Promise<MovieResult[]>
-  getMovieDetails(movieId: string): Promise<MovieDetails>
-  getAvailableSubtitles(movieId: string): Promise<SubtitleFile[]>
-  cacheMovieContent(movieId: string, content: MovieContent): Promise<void>
+interface SubordinateVoiceAgent {
+  generateCharacterVoice(dialogue: DialogueSegment, character: CharacterProfile): Promise<VoiceSegment>
+  maintainEmotionalContext(segment: DialogueSegment, emotion: EmotionContext): Promise<VoiceSegment>
+  adaptToSceneContext(dialogue: DialogueSegment, scene: SceneContext): Promise<VoiceSegment>
+  validateCharacterConsistency(voiceSegment: VoiceSegment, character: CharacterProfile): Promise<boolean>
 }
 
-interface MovieDetails {
+interface TaskDecomposition {
+  characterAssignments: CharacterAssignment[]
+  emotionalContexts: EmotionContext[]
+  sceneBreakdowns: SceneContext[]
+  voiceTasks: VoiceTask[]
+  qualityRequirements: QualityRequirement[]
+}
+
+interface VoiceTask {
   id: string
-  title: string
-  year: number
-  genre: string[]
-  cast: Actor[]
-  plot: string
-  availableLanguages: string[]
-  subtitleFormats: string[]
-  dubbingStatus: DubbingStatus
+  assignedAgent: string
+  character: CharacterProfile
+  dialogueSegments: DialogueSegment[]
+  emotionalContext: EmotionContext
+  qualityTargets: QualityMetric[]
 }
 ```
 
 **Implementation Details:**
-- Fast, searchable movie database with rich metadata
-- Intelligent subtitle file management and caching
-- Integration with popular movie databases (TMDB, OMDB)
-- Optimized for quick search and discovery experience
+- Master agent uses advanced reasoning to understand dialogue context and character relationships
+- Subordinate agents specialize in specific characters, emotions, or dialogue types
+- Real-time quality validation ensures consistency across all voice segments
+- Background audio preservation maintains original movie atmosphere and sound quality
+
+### Real-Time Streaming & Dubbing Engine
+
+**Responsibilities:**
+- Embed Dailymotion videos within DubAI platform
+- Coordinate real-time dubbing with video playback
+- Manage audio synchronization and overlay
+- Handle language switching and user controls
+
+**Interface:**
+```typescript
+interface RealTimeStreamingEngine {
+  embedDailymotionPlayer(videoUrl: string, containerId: string): Promise<EmbeddedPlayer>
+  initializeRealTimeDubbing(videoMetadata: VideoMetadata): Promise<DubbingSession>
+  synchronizeAudioWithVideo(audioSegments: AudioSegment[], videoTimestamp: number): Promise<void>
+  switchDubbingLanguage(sessionId: string, targetLanguage: string): Promise<void>
+  overlayDubbedAudio(audioBuffer: AudioBuffer, videoTimestamp: number): Promise<void>
+}
+
+interface EmbeddedPlayer {
+  playerId: string
+  videoUrl: string
+  currentTime: number
+  duration: number
+  isPlaying: boolean
+  availableQualities: VideoQuality[]
+  onTimeUpdate: (timestamp: number) => void
+  onLanguageChange: (language: string) => void
+}
+
+interface DubbingSession {
+  sessionId: string
+  videoId: string
+  targetLanguage: string
+  progress: number
+  availableSegments: AudioSegment[]
+  isRealTimeMode: boolean
+  fallbackSubtitles?: SRTFile
+}
+
+interface AudioSegment {
+  startTime: number
+  endTime: number
+  audioBuffer: AudioBuffer
+  character: string
+  isReady: boolean
+  quality: AudioQuality
+}
+```
+
+### MCP Server Integration Architecture
+
+**Responsibilities:**
+- Provide standardized interfaces for external services
+- Handle OpenSubtitles.org API integration
+- Manage TTS service connections and authentication
+- Coordinate file processing and storage operations
+
+**Interface:**
+```typescript
+interface MCPServerManager {
+  initializeServers(config: MCPConfig): Promise<void>
+  getDailymotionServer(): Promise<DailymotionMCPServer>
+  getOpenSubtitlesServer(): Promise<OpenSubtitlesMCPServer>
+  getTTSServiceServer(): Promise<TTSServiceMCPServer>
+  getFileProcessingServer(): Promise<FileProcessingMCPServer>
+  getStreamingServer(): Promise<StreamingMCPServer>
+  getDeploymentServer(): Promise<DeploymentMCPServer>
+}
+
+interface DailymotionMCPServer {
+  validateVideoUrl(url: string): Promise<UrlValidation>
+  getVideoMetadata(videoId: string): Promise<DailymotionVideoMetadata>
+  getEmbedCode(videoId: string, options: EmbedOptions): Promise<string>
+  trackViewerEngagement(videoId: string, metrics: EngagementMetrics): Promise<void>
+}
+
+interface StreamingMCPServer {
+  initializeRealTimeSession(videoId: string): Promise<StreamingSession>
+  streamAudioSegment(sessionId: string, audioBuffer: AudioBuffer): Promise<void>
+  synchronizeWithVideo(sessionId: string, timestamp: number): Promise<SyncResult>
+  handleLanguageSwitch(sessionId: string, language: string): Promise<void>
+}
+
+interface OpenSubtitlesMCPServer {
+  searchSubtitles(videoHash: string, duration: number): Promise<SubtitleResult[]>
+  downloadSubtitle(subtitleId: string): Promise<SubtitleFile>
+  validateSubtitleQuality(subtitle: SubtitleFile): Promise<QualityScore>
+  cacheSubtitleData(subtitle: SubtitleFile): Promise<void>
+}
+
+interface TTSServiceMCPServer {
+  initializeGoogleTTS(credentials: GoogleTTSCredentials): Promise<void>
+  initializeCoquiTTS(modelPath: string): Promise<void>
+  synthesizeSpeech(text: string, voiceConfig: VoiceConfig): Promise<AudioBuffer>
+  trackUsageQuota(service: TTSService, usage: UsageMetrics): Promise<QuotaStatus>
+}
+```
+
+### N8N Automation Workflow Architecture
+
+**Responsibilities:**
+- Orchestrate the complete video processing pipeline
+- Handle automated deployment and scaling
+- Manage error recovery and system monitoring
+- Coordinate agent task scheduling and execution
+
+**Interface:**
+```typescript
+interface N8NWorkflowManager {
+  initializeVideoProcessingWorkflow(): Promise<WorkflowInstance>
+  triggerSubtitleMatchingWorkflow(videoMetadata: VideoMetadata): Promise<WorkflowResult>
+  orchestrateTranslationPipeline(subtitle: SRTFile): Promise<TranslationWorkflowResult>
+  coordinateVoiceGenerationWorkflow(translatedContent: TranslationResult): Promise<VoiceWorkflowResult>
+  handleDeploymentWorkflow(applicationBundle: AppBundle): Promise<DeploymentResult>
+}
+
+interface WorkflowInstance {
+  id: string
+  name: string
+  status: WorkflowStatus
+  triggers: WorkflowTrigger[]
+  steps: WorkflowStep[]
+  errorHandling: ErrorRecoveryConfig
+  monitoring: MonitoringConfig
+}
+
+interface VideoProcessingWorkflow {
+  videoUpload: WorkflowStep
+  videoAnalysis: WorkflowStep
+  subtitleMatching: WorkflowStep
+  translationProcessing: WorkflowStep
+  voiceGeneration: WorkflowStep
+  audioCompilation: WorkflowStep
+  qualityValidation: WorkflowStep
+  finalDelivery: WorkflowStep
+}
+```
+
+**Implementation Details:**
+- N8N workflows handle the complete end-to-end processing pipeline
+- MCP servers provide standardized interfaces for all external service integrations
+- Automated error recovery and retry mechanisms ensure reliable processing
+- Real-time monitoring and alerting for system health and performance tracking
+
+## Kiro Agent-Driven Development Workflow
+
+### Agent Steering Configuration
+
+**Backend Development Steering (.kiro/steering/backend-development.md):**
+```markdown
+# Backend Development Standards
+
+## API Design Principles
+- Use RESTful endpoints with consistent naming conventions
+- Implement comprehensive error handling with detailed error codes
+- Add request validation using Zod schemas
+- Include rate limiting and authentication middleware
+
+## Database Design
+- Use Prisma ORM for type-safe database operations
+- Implement proper indexing for performance optimization
+- Add database migrations for schema changes
+- Include data validation at the model level
+
+## Service Integration
+- Create abstraction layers for external APIs
+- Implement retry logic with exponential backoff
+- Add comprehensive logging for debugging
+- Include health checks for all services
+```
+
+**AI Integration Steering (.kiro/steering/ai-integration.md):**
+```markdown
+# AI Model Integration Standards
+
+## Whisper Integration
+- Use local processing to minimize API costs
+- Implement proper error handling for model failures
+- Add progress tracking for long-running translations
+- Include quality validation for translation accuracy
+
+## Voice Generation
+- Implement character-specific voice profiles
+- Add emotional context analysis for natural speech
+- Include audio quality validation and enhancement
+- Implement background audio preservation techniques
+```
+
+### Agent Hooks Configuration
+
+**Development Hooks (.kiro/hooks/development-automation.json):**
+```json
+{
+  "hooks": [
+    {
+      "name": "Code Quality Check",
+      "trigger": "onFileSave",
+      "filePattern": "**/*.{ts,tsx,js,jsx}",
+      "actions": [
+        "runESLint",
+        "runPrettier",
+        "runTypeCheck",
+        "updateDocumentation"
+      ]
+    },
+    {
+      "name": "Test Automation",
+      "trigger": "onCodeChange",
+      "filePattern": "src/**/*.ts",
+      "actions": [
+        "runUnitTests",
+        "runIntegrationTests",
+        "generateCoverageReport",
+        "updateTestDocumentation"
+      ]
+    },
+    {
+      "name": "Deployment Pipeline",
+      "trigger": "onPush",
+      "branch": "main",
+      "actions": [
+        "buildApplication",
+        "runE2ETests",
+        "deployToStaging",
+        "runSmokeTests",
+        "deployToProduction"
+      ]
+    }
+  ]
+}
+```
+
+### MCP Server Configuration
+
+**DubAI MCP Configuration (.kiro/settings/mcp.json):**
+```json
+{
+  "mcpServers": {
+    "dailymotion-api": {
+      "command": "uvx",
+      "args": ["dailymotion-mcp-server@latest"],
+      "env": {
+        "DAILYMOTION_API_KEY": "${DAILYMOTION_API_KEY}",
+        "DAILYMOTION_API_SECRET": "${DAILYMOTION_API_SECRET}",
+        "FASTMCP_LOG_LEVEL": "INFO"
+      },
+      "disabled": false,
+      "autoApprove": ["getVideoMetadata", "downloadVideo", "validateUrl", "getEmbedCode"]
+    },
+    "opensubtitles-api": {
+      "command": "uvx",
+      "args": ["opensubtitles-mcp-server@latest"],
+      "env": {
+        "OPENSUBTITLES_API_KEY": "${OPENSUBTITLES_API_KEY}",
+        "FASTMCP_LOG_LEVEL": "INFO"
+      },
+      "disabled": false,
+      "autoApprove": ["searchSubtitles", "downloadSubtitle"]
+    },
+    "google-tts-service": {
+      "command": "uvx",
+      "args": ["google-tts-mcp-server@latest"],
+      "env": {
+        "GOOGLE_APPLICATION_CREDENTIALS": "${GOOGLE_TTS_CREDENTIALS}",
+        "FASTMCP_LOG_LEVEL": "INFO"
+      },
+      "disabled": false,
+      "autoApprove": ["synthesizeSpeech", "trackQuota"]
+    },
+    "real-time-streaming": {
+      "command": "uvx",
+      "args": ["streaming-mcp-server@latest"],
+      "env": {
+        "WEBSOCKET_PORT": "8080",
+        "AUDIO_BUFFER_SIZE": "4096",
+        "SYNC_TOLERANCE_MS": "50",
+        "FASTMCP_LOG_LEVEL": "INFO"
+      },
+      "disabled": false,
+      "autoApprove": ["initializeSession", "streamAudio", "synchronizeVideo"]
+    },
+    "file-processing": {
+      "command": "uvx",
+      "args": ["file-processing-mcp-server@latest"],
+      "env": {
+        "TEMP_DIR": "./temp",
+        "CACHE_DIR": "./cache",
+        "FASTMCP_LOG_LEVEL": "INFO"
+      },
+      "disabled": false,
+      "autoApprove": ["processVideo", "extractAudio", "compileAudio"]
+    }
+  }
+}
+```
 
 ## Technology Stack & Implementation
 

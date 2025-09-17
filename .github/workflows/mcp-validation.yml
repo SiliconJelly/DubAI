@@ -1,0 +1,90 @@
+name: MCP Configuration Validation
+
+on:
+  push:
+    paths:
+      - 'config/mcp-servers.json'
+      - '.kiro/**/*.json'
+      - '.kiro/**/*.md'
+  pull_request:
+    paths:
+      - 'config/mcp-servers.json'
+      - '.kiro/**/*.json'
+      - '.kiro/**/*.md'
+
+jobs:
+  validate-mcp-config:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Validate MCP server configuration
+        run: |
+          echo "🔍 Validating MCP server configuration..."
+          node -e "
+            const config = require('./config/mcp-servers.json');
+            
+            // Validate structure
+            if (!config.mcpServers) {
+              throw new Error('Missing mcpServers configuration');
+            }
+            
+            // Validate each server
+            Object.entries(config.mcpServers).forEach(([name, server]) => {
+              if (!server.command || !server.args) {
+                throw new Error(\`Server \${name} missing command or args\`);
+              }
+              
+              if (!server.description) {
+                console.warn(\`Warning: Server \${name} missing description\`);
+              }
+            });
+            
+            console.log('✅ MCP configuration is valid');
+          "
+      
+      - name: Validate environment variables
+        run: npm run validate:models
+      
+      - name: Check Kiro hooks syntax
+        run: |
+          echo "🔍 Validating Kiro hooks configuration..."
+          for file in .kiro/hooks/*.json; do
+            if [ -f "$file" ]; then
+              echo "Validating $file"
+              node -e "
+                try {
+                  const config = require('./$file');
+                  if (!config.hooks || !Array.isArray(config.hooks)) {
+                    throw new Error('Invalid hooks structure in $file');
+                  }
+                  console.log('✅ $file is valid');
+                } catch (error) {
+                  console.error('❌ Error in $file:', error.message);
+                  process.exit(1);
+                }
+              "
+            fi
+          done
+      
+      - name: Validate steering rules
+        run: |
+          echo "🔍 Validating Kiro steering rules..."
+          for file in .kiro/steering/*.md; do
+            if [ -f "$file" ]; then
+              echo "Checking $file for syntax issues"
+              # Basic markdown validation
+              if ! grep -q "^#" "$file"; then
+                echo "Warning: $file may not have proper markdown headers"
+              fi
+            fi
+          done

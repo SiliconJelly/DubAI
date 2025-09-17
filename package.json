@@ -21,11 +21,21 @@
     "test": "npm run test --workspaces --if-present",
     "test:backend": "npm run test --workspace=apps/backend",
     "test:frontend": "npm run test --workspace=apps/frontend",
+    "test:ai": "npm run test --workspace=apps/backend -- --testPathPattern=ai",
+    "test:integration": "npm run test:integration --workspaces --if-present",
+    "test:e2e": "npm run test:e2e --workspace=apps/frontend",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "clean": "npm run clean --workspaces --if-present && rimraf node_modules",
     "install:all": "npm install && npm install --workspaces",
-    "type-check": "npm run type-check --workspaces --if-present"
+    "type-check": "npm run type-check --workspaces --if-present",
+    "validate:models": "node scripts/validate-ai-models.js",
+    "deploy:staging": "echo 'Deploy to staging'",
+    "deploy:production": "echo 'Deploy to production'",
+    "monitor:pipeline": "node scripts/monitor-pipeline.js",
+    "monitor:sync": "node scripts/monitor-sync.js",
+    "metrics:collect": "node scripts/collect-metrics.js"
   },
   "keywords": [
     "video-dubbing",

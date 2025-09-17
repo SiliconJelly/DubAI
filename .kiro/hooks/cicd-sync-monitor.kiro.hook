@@ -1,0 +1,29 @@
+{
+  "enabled": true,
+  "name": "CI/CD Sync Monitor",
+  "description": "Monitors TypeScript source files, configuration files, and CI/CD related files to ensure everything stays in sync with GitHub and the development pipeline runs efficiently",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.ts",
+      "apps/**/*.ts",
+      "packages/**/*.ts",
+      "*.ts",
+      "package.json",
+      "package-lock.json",
+      "tsconfig.json",
+      "jest.config.js",
+      ".eslintrc.js",
+      "config/*.json",
+      ".gitignore",
+      "README.md",
+      "supabase/**/*",
+      ".github/**/*"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "As a CI/CD and Git expert, analyze the recent file changes in this TypeScript project. Check if: 1) All changes are properly committed and synced with GitHub, 2) The CI/CD pipeline configuration is optimal and up-to-date, 3) Dependencies and build configurations are consistent across the monorepo structure, 4) Any breaking changes require pipeline updates, 5) Database migrations and configurations are properly versioned. Provide specific recommendations to maintain an efficient development workflow and ensure all components stay in sync."
+  }
+}

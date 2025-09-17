@@ -2,53 +2,56 @@
 
 ## Introduction
 
-DubAI is a revolutionary cross-platform micro-SaaS that serves as a comprehensive movie ecosystem, combining intelligent movie cataloging, subtitle management, and high-quality dubbing services. The Q1 MVP focuses on two core functions: (1) English SRT → Bangla SRT translation with movie analysis, and (2) Bangla SRT → High-quality dub audio generation. The platform operates locally for cost-effectiveness while providing a foundation for Q2's full movie ecosystem platform.
+DubAI is a revolutionary AI-powered movie localization platform that transforms video content into high-quality dubbed versions using advanced AI agents. The system operates as an intelligent pipeline where users upload video files, and the platform automatically finds matching subtitles from OpenSubtitles.org, translates them using Whisper models, and generates human-like voiceovers using trained AI voice agents. The Q1 MVP focuses on two core co-dependent functions: (1) Whisper-powered translation from English to target language with subtitle matching, and (2) AI voice agent system that creates contextual, human-like voiceovers with perfect audio synchronization. The platform leverages Kiro's agent steering, hooks, and MCP servers for automated development and deployment workflows.
 
 ## Q1 MVP Requirements (Two-Function Core)
 
 ## Requirements
 
-### Requirement 1: Movie Catalog & SRT Input System
+### Requirement 1: Dailymotion Video Integration & Automated Subtitle Matching System
 
-**User Story:** As a movie enthusiast, I want to search for movies and upload English SRT files, so that I can start the dubbing process for my favorite content.
-
-#### Acceptance Criteria
-
-1. WHEN a user visits the platform THEN the system SHALL display a searchable movie catalog interface
-2. WHEN a user searches for a movie THEN the system SHALL return relevant results with movie details, posters, and metadata
-3. WHEN a user selects a movie THEN the system SHALL show available subtitle options and allow SRT file upload
-4. WHEN a user uploads an SRT file THEN the system SHALL validate the format and timestamp structure
-5. IF the SRT file is invalid THEN the system SHALL provide clear error messages and format guidelines
-6. WHEN SRT validation passes THEN the system SHALL prepare the file for Function 1 processing
-
-### Requirement 2: Function 1 - Translation Engine with Movie Analysis
-
-**User Story:** As a movie enthusiast, I want to translate English SRT files to Bangla while getting rich movie context and character analysis, so that I understand the movie better and get accurate translations.
+**User Story:** As a content creator, I want to provide a Dailymotion video URL or upload a video file and have the system automatically download the video, extract metadata, and find matching subtitle files from OpenSubtitles.org, so that I can start the dubbing process seamlessly.
 
 #### Acceptance Criteria
 
-1. WHEN an English SRT file is processed THEN the system SHALL use Whisper large-v3 model locally for translation
-2. WHEN translation begins THEN the system SHALL preserve all original timestamps with millisecond precision
-3. WHEN processing dialogue THEN the system SHALL generate movie analysis including plot summary, themes, and character profiles
-4. WHEN character analysis is performed THEN the system SHALL identify speaking patterns, personality traits, and voice characteristics
-5. WHEN translation is complete THEN the system SHALL output a Bangla SRT file with embedded metadata
-6. IF translation fails THEN the system SHALL retry with alternative Whisper parameters and provide detailed error logs
-7. WHEN analysis is complete THEN the system SHALL display movie insights, character breakdowns, and cultural context notes
+1. WHEN a user provides a Dailymotion video URL THEN the system SHALL authenticate with Dailymotion API and download the video with metadata
+2. WHEN a user uploads a video file directly THEN the system SHALL extract video metadata (duration, resolution, file hash) for processing
+3. WHEN video analysis is complete THEN the system SHALL search OpenSubtitles.org API for matching subtitle files using video fingerprinting and metadata
+4. WHEN multiple subtitle matches are found THEN the system SHALL rank them by accuracy score and present top 3 options to user
+5. WHEN a subtitle file is selected THEN the system SHALL download and validate the SRT format and timestamp structure
+6. IF no matching subtitles are found THEN the system SHALL provide options to upload custom SRT or use auto-generated subtitles
+7. WHEN subtitle matching is complete THEN the system SHALL automatically trigger Function 1 (translation pipeline)
+8. WHEN processing begins THEN the system SHALL provide real-time progress updates via WebSocket connection
+9. WHEN using Dailymotion videos THEN the system SHALL respect API rate limits and handle authentication tokens securely
 
-### Requirement 3: Function 2 - Voice Generation Engine with A/B Testing
+### Requirement 2: Function 1 - Whisper Translation Engine with High Context Analysis
 
-**User Story:** As a movie enthusiast, I want to convert Bangla SRT files to high-quality voice audio using the best available TTS service, so that I get professional dubbing results at the lowest cost.
+**User Story:** As a content creator, I want the system to translate subtitle files using Whisper models with high contextual understanding, so that the translations maintain cultural nuance and character consistency for better dubbing quality.
 
 #### Acceptance Criteria
 
-1. WHEN a Bangla SRT file is ready THEN the system SHALL initiate the voice generation process
-2. WHEN selecting TTS service THEN the system SHALL intelligently choose between Google Cloud TTS and Coqui TTS based on cost, quality, and availability
-3. WHEN using Google Cloud TTS THEN the system SHALL utilize WaveNet voices and track usage against the 4 million character free tier
-4. WHEN using Coqui TTS THEN the system SHALL process audio generation locally with zero API costs
-5. WHEN A/B testing is active THEN the system SHALL compare results from both services and select the optimal output
-6. WHEN generating voice segments THEN the system SHALL maintain character-specific voice profiles based on the movie analysis
-7. IF Google Cloud TTS quota is exceeded THEN the system SHALL automatically fallback to Coqui TTS without user intervention
-8. WHEN voice generation is complete THEN the system SHALL provide quality metrics and cost breakdown
+1. WHEN a subtitle file is ready for translation THEN the system SHALL use Whisper large-v3 model locally for high-context translation to target language
+2. WHEN translation begins THEN the system SHALL preserve all original timestamps with millisecond precision and maintain SRT formatting
+3. WHEN processing dialogue THEN the system SHALL analyze character context, emotional tone, and cultural references for accurate translation
+4. WHEN character analysis is performed THEN the system SHALL create voice profiles including gender, age, personality traits, and speaking patterns
+5. WHEN translation is complete THEN the system SHALL output translated SRT file with character metadata and voice instructions
+6. IF translation fails THEN the system SHALL retry with alternative Whisper parameters and log detailed error information
+7. WHEN Function 1 completes THEN the system SHALL automatically trigger Function 2 (AI voice agent pipeline) with translated content and character profiles
+
+### Requirement 3: Function 2 - AI Voice Agent System with Reasoning and Subordinate Agents
+
+**User Story:** As a content creator, I want an intelligent AI voice agent that reasons about dialogue context and coordinates multiple specialized voice agents to create human-like voiceovers with perfect emotional and contextual accuracy.
+
+#### Acceptance Criteria
+
+1. WHEN translated SRT with character profiles is ready THEN the system SHALL initialize the master AI voice agent for reasoning and coordination
+2. WHEN the master agent analyzes content THEN it SHALL break down the dubbing task into smaller interconnected outputs for subordinate voice agents
+3. WHEN subordinate agents are assigned THEN each SHALL specialize in specific characters, emotions, or dialogue types based on the reasoning analysis
+4. WHEN generating voiceovers THEN each subordinate agent SHALL maintain character consistency, emotional context, and timing precision
+5. WHEN voice segments are created THEN the system SHALL use character-specific voice profiles with appropriate gender, age, and personality traits
+6. WHEN all voice segments are complete THEN the master agent SHALL coordinate quality validation and consistency checks across all subordinate outputs
+7. IF voice quality issues are detected THEN the system SHALL automatically regenerate problematic segments with adjusted parameters
+8. WHEN Function 2 completes THEN the system SHALL trigger audio compilation and synchronization with original movie background sounds
 
 ### Requirement 4: Audio Assembly & Synchronization Engine
 
@@ -105,6 +108,64 @@ DubAI is a revolutionary cross-platform micro-SaaS that serves as a comprehensiv
 5. WHEN sharing results THEN the system SHALL provide secure download links with expiration dates
 6. IF users exceed free tier limits THEN the system SHALL provide clear upgrade options and pricing
 7. WHEN using the platform THEN the system SHALL maintain user privacy and secure data handling
+
+### Requirement 8: Kiro Agent Steering and Development Automation
+
+**User Story:** As a developer, I want Kiro agents to automatically handle different aspects of the DubAI development process using steering rules and hooks, so that I can efficiently develop and deploy the MVP with minimal manual intervention.
+
+#### Acceptance Criteria
+
+1. WHEN setting up the project THEN Kiro SHALL create agent steering rules for backend API development, frontend React components, and AI model integration
+2. WHEN code changes are made THEN agent hooks SHALL automatically trigger testing, linting, and deployment workflows
+3. WHEN developing translation features THEN specialized Kiro agents SHALL handle Whisper model integration, OpenSubtitles API integration, and SRT processing
+4. WHEN building voice generation features THEN dedicated agents SHALL manage TTS service integration, audio processing, and quality validation
+5. WHEN implementing the web interface THEN frontend agents SHALL create responsive UI components, real-time progress tracking, and file upload handling
+6. IF development issues occur THEN agent hooks SHALL automatically create bug reports, suggest fixes, and update documentation
+7. WHEN deploying to production THEN deployment agents SHALL handle server configuration, database setup, and monitoring implementation
+
+### Requirement 9: Dailymotion API Integration and Video Management
+
+**User Story:** As a content creator, I want to seamlessly access and process videos from Dailymotion, so that I can dub popular content without manual video downloading and management.
+
+#### Acceptance Criteria
+
+1. WHEN a user provides a Dailymotion video URL THEN the system SHALL validate the URL format and check video accessibility
+2. WHEN accessing Dailymotion content THEN the system SHALL authenticate using Dailymotion API credentials and handle OAuth flow
+3. WHEN downloading videos THEN the system SHALL respect Dailymotion's terms of service and rate limiting policies
+4. WHEN processing Dailymotion videos THEN the system SHALL extract comprehensive metadata including title, description, duration, and quality options
+5. WHEN video quality options are available THEN the system SHALL allow users to select preferred quality for processing
+6. IF video access is restricted THEN the system SHALL provide clear error messages and alternative options
+7. WHEN video download is complete THEN the system SHALL cache video metadata and proceed with subtitle matching
+8. WHEN handling large videos THEN the system SHALL implement progressive download with resume capability
+
+### Requirement 10: Real-Time Streaming with Embedded Dubbing
+
+**User Story:** As a movie enthusiast, I want to watch Dailymotion videos directly on the DubAI platform with real-time dubbing in my preferred language, so that I can enjoy seamless dubbed content without leaving the ecosystem.
+
+#### Acceptance Criteria
+
+1. WHEN a user provides a Dailymotion video URL THEN the system SHALL embed the video player within the DubAI platform interface
+2. WHEN the video starts playing THEN the system SHALL automatically begin real-time dubbing process in the background
+3. WHEN dubbing is in progress THEN the system SHALL display live progress indicators and estimated completion time
+4. WHEN dubbing segments are ready THEN the system SHALL seamlessly overlay dubbed audio tracks synchronized with video playback
+5. WHEN users select different languages THEN the system SHALL switch dubbing languages in real-time without interrupting playback
+6. IF dubbing is not yet complete THEN the system SHALL provide original audio with subtitles as fallback
+7. WHEN video playback ends THEN the system SHALL offer download options for the complete dubbed audio file
+8. WHEN using the streaming feature THEN the system SHALL maintain Dailymotion partnership compliance and user engagement metrics
+
+### Requirement 11: MCP Server Integration and N8N Automation
+
+**User Story:** As a developer, I want to use MCP servers and N8N automation to streamline the development workflow and integrate external services, so that the DubAI platform can efficiently connect with Dailymotion, OpenSubtitles.org, TTS services, and deployment platforms.
+
+#### Acceptance Criteria
+
+1. WHEN integrating external APIs THEN MCP servers SHALL provide standardized interfaces for Dailymotion API, OpenSubtitles.org, Google Cloud TTS, and Coqui TTS
+2. WHEN setting up automation workflows THEN N8N SHALL orchestrate the Dailymotion video download → subtitle matching → translation → voice generation pipeline
+3. WHEN handling file processing THEN MCP servers SHALL manage video analysis, subtitle downloading, and audio compilation workflows
+4. WHEN deploying the application THEN N8N automation SHALL handle server provisioning, database migration, and service configuration
+5. WHEN monitoring the system THEN automated workflows SHALL track performance metrics, error rates, and user engagement
+6. IF system issues occur THEN N8N SHALL automatically trigger alerts, backup procedures, and recovery workflows
+7. WHEN scaling the platform THEN MCP servers SHALL provide interfaces for cloud services, CDN integration, and load balancing
 
 ## Q2 Platform Requirements (Future Roadmap)
 
